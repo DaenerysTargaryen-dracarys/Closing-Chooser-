@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ultimate Shuffle Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #4e73df, #1cc88a);
+            color: white;
+            margin: 20px;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+        }
+
+        input, select {
+            padding: 6px;
+            margin: 4px;
+            border-radius: 6px;
+            border: none;
+        }
+
+        button {
+            padding: 10px 25px;
+            margin: 15px;
+            border-radius: 25px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            background: #f6c23e;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+        }
+
+        .box-container {
+            display: grid;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .box {
+            width: 170px;
+            min-height: 120px;
+            background: white;
+            color: black;
+            border-radius: 15px;
+            padding: 10px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .box-header {
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        .box-name {
+            font-size: 20px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        /* Shake Animation */
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(3deg); }
+            50% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        .shaking {
+            animation: shake 0.3s infinite;
+        }
+
+        .glow {
+            box-shadow: 0 0 20px gold;
+        }
+    </style>
+</head>
+<body>
+
+<h2>🎮 Closing Game </h2>
+
+<label>Select Number of Boxes:</label>
+<select id="boxCount" onchange="createFields()">
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6" selected>6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+    <option value="10">10</option>
+</select>
+
+<h3>Enter Box Headers</h3>
+<div id="headerInputs"></div>
+
+<h3>Enter Names</h3>
+<div id="nameInputs"></div>
+
+<button onclick="shuffleNames()">Shuffle 🎲</button>
+
+<div class="box-container" id="boxes"></div>
+
+<script>
+
+function createFields() {
+    let count = document.getElementById("boxCount").value;
+    let headerDiv = document.getElementById("headerInputs");
+    let nameDiv = document.getElementById("nameInputs");
+    let boxDiv = document.getElementById("boxes");
+
+    headerDiv.innerHTML = "";
+    nameDiv.innerHTML = "";
+    boxDiv.innerHTML = "";
+
+    boxDiv.style.gridTemplateColumns = "repeat(auto-fit, minmax(170px, 1fr))";
+
+    for (let i = 1; i <= count; i++) {
+        headerDiv.innerHTML += `<input type="text" id="header${i}" placeholder="Header ${i}"><br>`;
+        nameDiv.innerHTML += `<input type="text" id="name${i}" placeholder="Name ${i}"><br>`;
+
+        boxDiv.innerHTML += `
+            <div class="box" id="box${i}">
+                <div class="box-header" id="boxHeader${i}"></div>
+                <div class="box-name" id="boxName${i}"></div>
+            </div>
+        `;
+    }
+}
+
+function shuffleNames() {
+    let count = document.getElementById("boxCount").value;
+    let names = [];
+
+    for (let i = 1; i <= count; i++) {
+
+        // Take name from box if exists, otherwise from input
+        let existingName = document.getElementById("boxName" + i).innerText;
+        let inputName = document.getElementById("name" + i).value;
+
+        names.push(existingName || inputName);
+
+        // Always update headers
+        document.getElementById("boxHeader" + i).innerText =
+            document.getElementById("header" + i).value;
+    }
+
+    let boxes = document.querySelectorAll(".box");
+
+    // Start shaking animation
+    boxes.forEach(box => {
+        box.classList.remove("glow");
+        box.classList.add("shaking");
+    });
+
+    setTimeout(() => {
+
+        // Fisher-Yates Shuffle
+        for (let i = names.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            [names[i], names[j]] = [names[j], names[i]];
+        }
+
+        // Put shuffled names into boxes
+        for (let i = 1; i <= count; i++) {
+            document.getElementById("boxName" + i).innerText = names[i - 1];
+        }
+
+        // Stop shaking & glow
+        boxes.forEach(box => {
+            box.classList.remove("shaking");
+            box.classList.add("glow");
+        });
+
+    }, 2000);
+}
+
+createFields();
+
+</script>
+
+</body>
+</html>
